@@ -570,3 +570,88 @@ testes html
             </div>
         </div>
     </div>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            let currentQuestion = 1;
+            const totalQuestions = 19;
+            const answers = {};
+            
+            // Select all option buttons and add click event listeners
+            const optionButtons = document.querySelectorAll('.option-btn');
+            optionButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Store the answer
+                    const questionNumber = this.closest('.question').getAttribute('data-question');
+                    const answerValue = this.getAttribute('data-value');
+                    answers[questionNumber] = answerValue;
+                    
+                    // Mark the selected button
+                    const buttonsInQuestion = this.closest('.question').querySelectorAll('.option-btn');
+                    buttonsInQuestion.forEach(btn => btn.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // Move to the next question
+                    if (currentQuestion <= totalQuestions) {
+                        setTimeout(() => {
+                            goToQuestion(parseInt(questionNumber) + 1);
+                        }, 300);
+                    }
+                });
+            });
+            
+            // Form submission
+            const leadForm = document.getElementById('lead-form');
+            if (leadForm) {
+                leadForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const name = document.getElementById('name').value;
+                    const email = document.getElementById('email').value;
+                    const whatsapp = document.getElementById('whatsapp').value;
+                    
+                    // Collect all answers including the form data
+                    answers['name'] = name;
+                    answers['email'] = email;
+                    answers['whatsapp'] = whatsapp;
+                    
+                    // In a real implementation, you would send this data to your server
+                    console.log('Form submitted with data:', answers);
+                    
+                    // Show success screen
+                    goToQuestion(21);
+                });
+            }
+            
+            // Navigation function
+            function goToQuestion(questionNumber) {
+                // Hide current question
+                document.querySelector(`.question[data-question="${currentQuestion}"]`)?.classList.remove('active');
+                
+                // Show new question
+                currentQuestion = questionNumber;
+                const nextQuestion = document.querySelector(`.question[data-question="${currentQuestion}"]`);
+                if (nextQuestion) {
+                    nextQuestion.classList.add('active');
+                    
+                    // Update progress bar
+                    if (currentQuestion <= totalQuestions) {
+                        const progressPercent = ((currentQuestion - 1) / totalQuestions) * 100;
+                        document.getElementById('progress-bar').style.width = `${progressPercent}%`;
+                        document.getElementById('current-question').textContent = currentQuestion;
+                    } else {
+                        document.getElementById('progress-bar').style.width = '100%';
+                    }
+                    
+                    // Scroll to top of container
+                    document.querySelector('.quiz-container').scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+            
+            // Initialize the first question
+            goToQuestion(1);
+        });
+    </script>
+</body>
+</html>
